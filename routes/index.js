@@ -13,6 +13,6 @@ router.post("/create", controllers.create);
 router.get("/stories", controllers.story);
 router.get("/story/:id", controllers.storyOne);
 router.put("/story/edit/:id", controllers.edit);
-router.delete("/story/delete/:id", controllers.removed)
+router.delete("/story/delete/:id", controllers.removed);
 
 module.exports = router;

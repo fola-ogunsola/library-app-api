@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const controllers = require("../controllers/index")
+const accounts = require('../controllers/user')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -9,6 +10,9 @@ router.get('/', function(req, res, next) {
   })
 });
 
+
+router.post('/reg', accounts.register)
+router.post('/login', accounts.login)
 router.post("/create", controllers.create);
 router.get("/stories", controllers.story);
 router.get("/story/:id", controllers.storyOne);

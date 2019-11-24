@@ -1,33 +1,33 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
-const userProfile = require("../model/userProfile");
+const userProfile = require("../models/userProfile");
 const dotenv = require("dotenv").config();
-const salt = 10;
 
+// For Sign up
 const register = (req, res, next) => {
-  const { username, email, password, createdAccount } = req.body;
+  const { username, email, password, isAdmin } = req.body;
   userProfile.findOne({ email }, (err, data) => {
     if (err) next(err);
     if (data) {
-      return res.status(200).json({
-        message: "Email has been registered,create account!"
+      return res.status(409).json({
+        message: "Email has been registered, Login instead!"
       });
     } else {
       bcryptjs.genSalt(10, function(err, salt) {
         bcryptjs.hash(password, salt, (err, hash) => {
-          const newuserProfile = new userProfile({
+          const newUserProfile = new userProfile({
             username,
             password: hash,
             email,
-            createdAccount
+            isAdmin
           });
-          newuserProfile.save(err => {
+          newUserProfile.save(err => {
             if (err) {
               return next(err);
             } else {
-              return res.status(200).json({
-                message: "Account created,login!"
+              return res.status(201).json({
+                message: "Account created, login!"
               });
             }
           });
@@ -51,12 +51,14 @@ const login = (req, res, next) => {
     } else {
       bcryptjs.compare(password, data.password, (err, checkedPassword) => {
         if (!checkedPassword) {
-          return res.status(404).json({
-            message: "Wrong Password"
+          return res.status(403).json({
+            message: "Wrong Password or email"
           });
         } else {
+          const token = jwt.sign({ isAdmin: data.isAdmin }, process.env.SECRET, {expiresIn: "48h"});
           return res.status(200).json({
-            message: "Welcome!"
+            message: "Welcome!",
+            token
           });
         }
       });

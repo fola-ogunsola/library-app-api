@@ -1,13 +1,13 @@
 const post = require("../models/posts");
 const mongoose = require("mongoose");
 
-
 const create = (req, res, next) => {
-    const { title, author, content } = req.body;
+    const { title, author, content, image } = req.body;
     const newPost = new post({
         title,
         author,
         content,
+        image
     });
 
     newPost.save((err) => {
@@ -15,7 +15,7 @@ const create = (req, res, next) => {
             return next(err)
         } else {
             return res.status(201).json({
-                message: "Post created"
+                message: "Book created"
             })
         }
     });
@@ -26,7 +26,7 @@ const story = (req, res, next) => {
         if (err) next(err)
         if (!data) {
             return res.status(404).json({
-                message: "No post found"
+                message: "No Book found"
             });
         } else {
             return res.status(200).json({ data })
@@ -40,10 +40,11 @@ const storyOne = (req, res, next) => {
         if (err) next(err);
         if (!data) {
             return res.status(404).json({
-                message: "Post not found"
+                message: "Book not found"
             })
         } else {
             res.status(200).json({
+                image: data.image,
                 Title: data.title,
                 WrittenBy: data.author,
                 Content: data.content,
@@ -53,18 +54,10 @@ const storyOne = (req, res, next) => {
     })
 }
 
-//*********************************************************************************************************
-//#################################  EDITING A POST #######################################################
-//`````````````````````````````````````````````````````````````````````````````````````````````````````````
-// to edit a post....
-// you need to pass in whatever you want to edit in the body of your request
-// must be in json format
-// e.g "title": "A boy goes to sch"
-// the above example will change the title of any post whose id you passed in the url to A boy goes to sch
-//*********************************************************************************************************
+
 
 const edit = (req, res, next) => {
-    if (!req.admin) {
+    if (!req.email) {
         return res.status(401).json({
             message: "You need to be an admin to edit or delete stories"
         });
@@ -75,7 +68,7 @@ const edit = (req, res, next) => {
             if (err) next(err);
             if (!data) {
                 return res.status(404).json({
-                    message: "Post not found"
+                    message: "Book not found"
                 })
             } else {
                 if (title) {
@@ -94,7 +87,7 @@ const edit = (req, res, next) => {
                     if (err) {
                         next(err)
                     } else {
-                        res.send(editedPost);
+                        res.status(200).send(editedPost);
                     }
                 })
             }
@@ -104,23 +97,23 @@ const edit = (req, res, next) => {
 }
 
 const removed = (req, res, next) => {
-    if (!req.admin) {
-        return res.status(401).json({
-            message: "You need to be an admin to edit or delete stories"
+  if (!req.email) {
+    return res.status(401).json({
+      message: "You need to be autheticated to edit book"
+    });
+  } else {
+    const id = req.params.id;
+    post.deleteOne({ _id: id }, err => {
+      if (err) {
+        next(err);
+      } else {
+        res.status(204).json({
+          message: "Book deleted successfully"
         });
-    } else {
-        const id = req.params.id;
-        post.deleteOne({ _id: id }, (err) => {
-            if (err) {
-                next(err)
-            } else {
-                res.status(204).json({
-                    message: "Story deleted successfully"
-                });
-            }
-        });
-    }
+      }
+    });
+  }
+};
 
-}
 
-module.exports = { create, story, storyOne, edit, removed }
+module.exports = { create, story, storyOne, edit, removed };

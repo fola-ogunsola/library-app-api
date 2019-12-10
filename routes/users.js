@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
 router.post("/create", auth, controllers.create);
 router.get("/stories", auth, controllers.story);
 router.get("/story/:id", auth, controllers.storyOne);
-router.put("/story/edit/:id", auth, controllers.edit);
+router.put("/story/:id/edit", auth, controllers.edit);
 router.delete("/story/delete/:id", auth, controllers.removed);
 
 module.exports = router;

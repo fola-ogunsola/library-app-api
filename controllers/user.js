@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
 const userProfile = require("../models/userProfile");
 const dotenv = require("dotenv").config();
+const salts = 10
 
 // For Sign up
 const register = (req, res, next) => {
-  const { username, email, password, isAdmin } = req.body;
+  const { username, email, password, } = req.body;
   userProfile.findOne({ email }, (err, data) => {
     if (err) next(err);
     if (data) {
@@ -20,7 +21,7 @@ const register = (req, res, next) => {
             username,
             password: hash,
             email,
-            isAdmin
+          
           });
           newUserProfile.save(err => {
             if (err) {
@@ -37,6 +38,9 @@ const register = (req, res, next) => {
   });
 };
 
+
+
+
 //FOR LOGIN
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -52,10 +56,10 @@ const login = (req, res, next) => {
       bcryptjs.compare(password, data.password, (err, checkedPassword) => {
         if (!checkedPassword) {
           return res.status(403).json({
-            message: "Wrong Password or email"
+            message: "Wrong email"
           });
         } else {
-          const token = jwt.sign({ isAdmin: data.isAdmin }, process.env.SECRET, {expiresIn: "48h"});
+          const token = jwt.sign({ email: data.email }, process.env.SECRET);
           return res.status(200).json({
             message: "Welcome!",
             token
@@ -65,6 +69,8 @@ const login = (req, res, next) => {
     }
   });
 };
+
+
 
 module.exports = {
   register,
